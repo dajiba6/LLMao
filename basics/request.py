@@ -25,7 +25,7 @@ completion = client.chat.completions.create(
         {"role": "system", "content": "You are a helpful assistant."},
         {
             "role": "user",
-            "content": "给我写一首中国风的古诗,主题是在办公室辛勤工作的人,注意押运。",
+            "content": "给我写一首中国风的古诗,主题是在办公室辛勤工作的人,注意押韵。",
         },
     ],
     temperature=1.5,
