@@ -4,7 +4,10 @@ import yaml
 import os
 
 """
-暂无openai response_format的完善参数功能, 须手动构建json sturcture prompt
+结构化输出llm
+输出愤怒程度0~1
+
+deepseek暂无openai response_format的完善参数功能, 须手动构建json sturcture prompt
 """
 # --------------------------------------------------------------
 # 读取配置

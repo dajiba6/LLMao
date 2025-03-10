@@ -3,6 +3,10 @@ import yaml
 import os
 import json
 
+"""
+构建工具实现retrieval功能
+"""
+
 # --------------------------------------------------------------
 # 读取配置
 # --------------------------------------------------------------
@@ -52,19 +56,22 @@ tools = [
 system_prompt = "你是一个人工智能助手"
 user_prompt = "根据我知识库中的内容告诉我魔丸的信息，要快！"
 structure1 = """
-请以下面格式输出内容
+用json格式输出, 下面为示例
 
 example input:
 {
-  "name": "灵丸",
-  "hight": "1.4米",
-  "personality": "和蔼的小孩"
+  "name":,
+  "hight": ,
+  "personality": 
 }
+
 example output:
 {
-  "name": "灵丸"
-  "content": "这是一个名叫灵丸的和蔼小孩，你可以和他做朋友。"
+  "name": ,
+  "content": 
 }
+ouput description:
+content: summary and analysis of this person
 """
 
 messages = [

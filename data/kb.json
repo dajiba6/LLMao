@@ -1,5 +1,16 @@
 {
+  "person": [
+    {
   "name": "魔丸",
   "hight": "1.4米",
-  "personality": "恐怖的小孩"
+  "personality": "恐怖的小孩",
+  "habit": "打个打西瓜"
+},
+{
+  "name": "灵丸",
+  "hight": "1.4米",
+  "personality": "和蔼的小孩",
+  "habit": "唱,跳,rap,篮球"
+}
+]
 }

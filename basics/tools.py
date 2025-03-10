@@ -4,6 +4,11 @@ import os
 from duckduckgo_search import DDGS
 import json
 
+"""
+llm api接口实现调用本地工具
+用搜索api搜索网络资料并总结
+"""
+
 # --------------------------------------------------------------
 # 读取配置
 # --------------------------------------------------------------
@@ -22,6 +27,11 @@ client = OpenAI(api_key=api_key, base_url=base_url)
 def duckducknews(query: str) -> list:
     with DDGS() as ddgs:
         return list(ddgs.news(keywords=query, region="cn-zh", max_results=10))
+
+
+def duckducktext(query: str) -> list:
+    with DDGS() as ddgs:
+        return list(ddgs.text(keywords=query, region="cn-zh", max_results=10))
 
 
 # --------------------------------------------------------------
@@ -47,21 +57,21 @@ tools = [
     },
     # 测试例子
     #! deepseek无脑调用工具,没有自我判别能力?
-    # {
-    #     "type": "function",
-    #     "function": {
-    #         "name": "add",
-    #         "description": "add two number and return sum",
-    #         "parameters": {
-    #             "type": "object",
-    #             "properties": {
-    #                 "num1": {"type": "number"},
-    #                 "num2": {"type": "number"},
-    #             },
-    #             "required": ["num1", "num2"],
-    #         },
-    #     },
-    # },
+    {
+        "type": "function",
+        "function": {
+            "name": "add",
+            "description": "add two number and return sum",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "num1": {"type": "number"},
+                    "num2": {"type": "number"},
+                },
+                "required": ["num1", "num2"],
+            },
+        },
+    },
 ]
 
 system_prompt = "你是一个人工智能助手"
