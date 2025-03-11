@@ -1,0 +1,40 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "duckducknews",
+      "description": "Search information on the internet through duckduckgo.news().",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The keywords that the user wants to search."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "duckducktext",
+      "description": "Search information on the internet through duckduckgo.text().",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "The keywords that the user wants to search."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      }
+    }
+  }
+]
