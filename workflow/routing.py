@@ -1,5 +1,5 @@
 """
-prompt_chain:检测到二次元浓度过低时不给于回复, 过高则分享一个相关梗
+routing:检测到二次元浓度过低时推荐一部动漫, 过高则分享一个相关梗
 """
 
 from openai import OpenAI
@@ -119,6 +119,7 @@ def search_meme(prompt: str):
 # 工具
 def call_function(name, args):
     if name == "duckducktext":
+        #! duckducktext接口使用一直报错
         return duckducknews(**args)
 
 
@@ -143,23 +144,39 @@ def generate_meme(pervious_message: list):
     return compeletion.choices[0].message.content
 
 
+# 动漫推荐
+def anime_recommend(prompt: str):
+    search_response = duckducknews("当前最热门的动漫")
+    system_prompt = "你是一个ai智能助手"
+    user_prompt = "根据以下搜索结果以及用户分析，为用户推荐动漫"
+    user_prompt = user_prompt + prompt + str(search_response)
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
+    compeletion = client.chat.completions.create(
+        model="deepseek-chat", messages=messages
+    )
+    return compeletion.choices[0].message.content
+
+
+# --------------------------------------------------------------
+# chain 在一起
+# --------------------------------------------------------------
 def weeb_helper(prompt):
     logger.info(f"input prompt:\n{prompt}")
     detect_result = weeb_detection(prompt)
     logger.info(f"weeb detect result:\n{detect_result}")
     detect_result = json.loads(detect_result)
     if detect_result["dencity_weeb"] < 0.5:
-        logger.info("二次元浓度过低，禁止访问！")
-        return None
-    search_result = search_meme(detect_result["anime"])
-    logger.debug(f"search_result:\n{search_result}")
-    final_result = generate_meme(search_result)
-    logger.info(final_result)
+        final_result = anime_recommend(detect_result["anime"])
+        logger.info(final_result)
+    else:
+        search_result = search_meme(detect_result["anime"])
+        logger.debug(f"search_result:\n{search_result}")
+        final_result = generate_meme(search_result)
+        logger.info(final_result)
 
 
-# --------------------------------------------------------------
-# chain 在一起
-# --------------------------------------------------------------
-
-test_prompt = "我曹，枪之恶魔！"
+test_prompt = "我是成年人，小孩才看动漫！"
 weeb_helper(test_prompt)
