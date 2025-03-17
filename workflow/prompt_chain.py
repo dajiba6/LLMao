@@ -160,6 +160,6 @@ def weeb_helper(prompt):
 # --------------------------------------------------------------
 # chain 在一起
 # --------------------------------------------------------------
-
-test_prompt = "我曹，枪之恶魔！"
-weeb_helper(test_prompt)
+if __name__ == "__main__":
+    human_prompt = "快乐星猫"
+    weeb_helper(human_prompt)
