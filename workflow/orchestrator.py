@@ -1,11 +1,12 @@
 """
-orchestrator:分模块协作实现博客编写
+orchestrator:分模块协作实现blog编写,plan->work....->review
 """
 
 from openai import OpenAI
 import yaml
 import json
 import os
+import time
 
 
 # --------------------------------------------------------------
@@ -250,7 +251,9 @@ if __name__ == "__main__":
     length = 1500
     style = "通俗易懂但不要有太多重复的废话,让人读了感觉这篇文章很有价值"
     audience = "会计从业人员"
+    start_time = time.time()
     result = orchestrator.write_blog(topic, length, style, audience)
+    end_time = time.time()
     print(f"Final Result:\n")
     print(f"cohesion_score:{result['review']['cohesion_score']}")
     print("Reviews:")
@@ -261,8 +264,14 @@ if __name__ == "__main__":
 
     print("Saving bolg...")
     # 将sections_content保存到data文件夹的txt文件中
-    output_file_path = os.path.join("..", "data", f"{topic}_sections_content.txt")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_file_path = os.path.join(
+        script_dir, "..", "output", f"{topic}_sections_content.txt"
+    )
     with open(output_file_path, "w", encoding="utf-8") as file:
         for section_type, section_content in orchestrator.sections_content.items():
             file.write(f"{section_type}:\n{section_content}\n\n")
     print(f"Blog save to {output_file_path}.")
+    # 输出耗时
+    elapsed_time = end_time - start_time
+    print(f"Total time: {elapsed_time:.2f} seconds")
