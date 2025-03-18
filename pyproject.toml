@@ -13,6 +13,7 @@ ipykernel = "^6.29.5"
 requests = "^2.32.3"
 duckduckgo-search = "^7.5.0"
 flask = "^3.1.0"
+llama-index = "^0.12.24"
 
 
 [build-system]
