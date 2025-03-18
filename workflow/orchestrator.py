@@ -247,7 +247,7 @@ class BlogOrchestrator:
 
 if __name__ == "__main__":
     orchestrator = BlogOrchestrator()
-    topic = "AI对会计行业的冲击"
+    topic = "AI对会计行业的冲击,中国国企会计行业以及员工发展方向"
     length = 1500
     style = "通俗易懂但不要有太多重复的废话,让人读了感觉这篇文章很有价值"
     audience = "会计从业人员"
