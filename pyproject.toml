@@ -14,6 +14,8 @@ requests = "^2.32.3"
 duckduckgo-search = "^7.5.0"
 flask = "^3.1.0"
 llama-index = "^0.12.24"
+llama-index-llms-ollama = "^0.5.3"
+llama-index-embeddings-huggingface = "^0.5.2"
 
 
 [build-system]
