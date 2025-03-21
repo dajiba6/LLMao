@@ -3,3 +3,4 @@ __pycache__/
 .venv/
 config.yaml
 output
+unsloth_compiled_cache/

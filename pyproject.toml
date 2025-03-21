@@ -6,7 +6,7 @@ authors = ["cyn <chao.yn@foxmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.13"
 openai = "^1.65.4"
 pyyaml = "^6.0.2"
 ipykernel = "^6.29.5"
@@ -16,6 +16,7 @@ flask = "^3.1.0"
 llama-index = "^0.12.24"
 llama-index-llms-ollama = "^0.5.3"
 llama-index-embeddings-huggingface = "^0.5.2"
+unsloth = "^2025.3.17"
 
 
 [build-system]
