@@ -17,6 +17,9 @@ llama-index = "^0.12.24"
 llama-index-llms-ollama = "^0.5.3"
 llama-index-embeddings-huggingface = "^0.5.2"
 unsloth = "^2025.3.17"
+modelscope = "^1.24.0"
+addict = "^2.4.0"
+datasets = "^3.4.1"
 
 
 [build-system]

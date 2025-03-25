@@ -3,5 +3,7 @@ __pycache__/
 .venv/
 config.yaml
 output
+outputs/
 *_temp/
 *_cache/
+llama.cpp/

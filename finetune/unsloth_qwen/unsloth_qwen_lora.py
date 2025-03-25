@@ -17,55 +17,11 @@ local_model_path = "/home/cyn/.cache/huggingface/hub/models--unsloth--Qwen2-0.5B
 
 # Load model
 print("Loading model...")
-model, tokenizer = FastLanguageModel.from_pretrained(
+model_qwen, tokenizer = FastLanguageModel.from_pretrained(
     model_name=local_model_path,
     max_seq_length=max_seq_length,
     dtype=dtype,
     load_in_4bit=load_in_4bit,
-)
-
-
-# --------------------------------------------------------------
-# unsloth inference 测试
-# --------------------------------------------------------------
-# def UnslothInference(model, tokenizer):
-print("Inference test...")
-text_streamer = TextStreamer(tokenizer)
-
-# 这部分代码有什么用?
-# 解：对格式进行映射
-from unsloth.chat_templates import get_chat_template
-
-tokenizer = get_chat_template(
-    tokenizer,
-    chat_template="chatml",
-    mapping={
-        "role": "from",
-        "content": "value",
-        "user": "human",
-        "assistant": "gpt",
-    },
-)
-FastLanguageModel.for_inference(model)  # Enable native 2x faster inference
-
-messages = [
-    {"from": "human", "value": "杭州的省会在哪里？"},
-]
-messages = [
-    {"role": "user", "content": "杭州的省会在哪里？"},
-]
-inputs = tokenizer.apply_chat_template(
-    messages,
-    tokenize=True,
-    add_generation_prompt=True,  # Must add for generation
-    return_tensors="pt",
-).to("cuda")
-
-from transformers import TextStreamer
-
-text_streamer = TextStreamer(tokenizer, skip_prompt=True)
-_ = model.generate(
-    input_ids=inputs, streamer=text_streamer, max_new_tokens=128, use_cache=True
 )
 
 
@@ -76,7 +32,7 @@ _ = model.generate(
 # # ? uncloth具体来说用了什么方法?
 print("Loading unsloth fine-tuning method...")
 model = FastLanguageModel.get_peft_model(
-    model,
+    model_qwen,
     r=16,  # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128
     target_modules=[
         "q_proj",
@@ -131,4 +87,112 @@ def formatting_prompts_func(examples):
 
 pass
 
-from modelscope.msdatasets import MsDataset
+#! modelscope依赖库有冲突,且poetry没识别出来
+# from modelscope import MsDataset
+
+# dataset = MsDataset.load("OminiData/guanaco-sharegpt-style", split="train")
+# dataset = dataset.map(formatting_prompts_func)
+
+from datasets import load_dataset
+
+dataset = load_dataset(
+    "/home/cyn/.cache/huggingface/hub/datasets--philschmid--guanaco-sharegpt-style/snapshots/69bfddb3a5d32897ee6b224e1c9397857616f556",
+    split="train",
+)
+dataset = dataset.map(
+    formatting_prompts_func,
+    batched=True,
+)
+
+from trl import SFTTrainer
+from transformers import TrainingArguments
+from unsloth import is_bfloat16_supported
+
+trainer = SFTTrainer(
+    model=model,
+    tokenizer=tokenizer,
+    train_dataset=dataset,
+    dataset_text_field="text",
+    max_seq_length=max_seq_length,
+    dataset_num_proc=2,
+    packing=False,  # Can make training 5x faster for short sequences.
+    args=TrainingArguments(
+        per_device_train_batch_size=2,
+        gradient_accumulation_steps=4,
+        warmup_steps=5,
+        max_steps=60,
+        learning_rate=2e-4,
+        fp16=not is_bfloat16_supported(),
+        bf16=is_bfloat16_supported(),
+        logging_steps=1,
+        optim="adamw_8bit",
+        weight_decay=0.01,
+        lr_scheduler_type="linear",
+        seed=3407,
+        output_dir="outputs",
+    ),
+)
+
+trainer_stats = trainer.train()
+
+# --------------------------------------------------------------
+# unsloth inference 测试
+# --------------------------------------------------------------
+# def UnslothInference(model, tokenizer):
+print("Inference test...")
+text_streamer = TextStreamer(tokenizer)
+
+# 这部分代码有什么用?
+# 解：对格式进行映射
+from unsloth.chat_templates import get_chat_template
+
+tokenizer = get_chat_template(
+    tokenizer,
+    chat_template="chatml",
+    mapping={
+        "role": "from",
+        "content": "value",
+        "user": "human",
+        "assistant": "gpt",
+    },
+)
+FastLanguageModel.for_inference(model)  # Enable native 2x faster inference
+
+messages = [
+    {"from": "human", "value": "杭州的省会在哪里？"},
+]
+messages = [
+    {"role": "user", "content": "杭州的省会在哪里？"},
+]
+inputs = tokenizer.apply_chat_template(
+    messages,
+    tokenize=True,
+    add_generation_prompt=True,  # Must add for generation
+    return_tensors="pt",
+).to("cuda")
+
+from transformers import TextStreamer
+
+text_streamer = TextStreamer(tokenizer, skip_prompt=True)
+_ = model_qwen.generate(
+    input_ids=inputs, streamer=text_streamer, max_new_tokens=128, use_cache=True
+)
+
+# --------------------------------------------------------------
+# 保存model
+# --------------------------------------------------------------
+
+model.save_pretrained("lora_model_cache")  # Local saving
+tokenizer.save_pretrained("lora_model_cache")
+# 导出GGUF,量化方式为q4_k_m
+model.save_pretrained_gguf("model_cache", tokenizer, quantization_method="q4_k_m")
+
+print(tokenizer._ollama_modelfile)
+
+# --------------------------------------------------------------
+# 模型ollama部署
+# --------------------------------------------------------------
+"""
+ollama create unsloth_qwen2 -f *Modelfile 文件地址*
+ollama run unsloth_qwen2
+"""
