@@ -53,3 +53,45 @@ print(ori_reponse)
 
 json_response = json.loads(compeletion.choices[0].message.content)
 print(json_response)
+
+
+# --------------------------------------------------------------
+# 用instructor库实现llm结构化输出
+# --------------------------------------------------------------
+"""
+# 添加llm结构化输出
+import instructor
+from pydantic import BaseModel
+
+class EvaluationOutput(BaseModel):
+    name: str
+    age: int
+
+def generate_evaluation_structured(_model: Llama, _messages: str) -> str:
+    # add structured output
+    create = instructor.patch(
+        create=_model.create_chat_completion_openai_v1,
+        mode=instructor.Mode.JSON_SCHEMA,
+    )
+
+    response = create(
+        messages = _messages,
+        stop=["<|eot_id|>", "<|end_of_text|>"],
+        max_tokens=4096,
+        temperature=0,
+        response_model=EvaluationOutput,
+    )
+    return response
+
+
+## 结构化输出测试
+test_messages =[
+    {"role":"system","content":"你是一个人工智能助手"},
+    {"role":"user","content":"老王是一个爱捡垃圾的老头. 分析这个人的年纪和姓名"}
+] 
+test_res = generate_evaluation_structured(myModel,test_messages)
+print(test_res)
+
+
+
+"""
